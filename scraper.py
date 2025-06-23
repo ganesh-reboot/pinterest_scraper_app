@@ -8,12 +8,16 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
+from selenium.webdriver.chrome.service import Service
 
 options = Options()
 options.add_argument("--headless")
-options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
+options.binary_location = "/usr/bin/chromium"
+
+# Define the ChromeDriver service
+service = Service(ChromeDriverManager().install())
 
 def parse_pins(pin_str):
     match = re.match(r'([\d\.]+)(k?)', pin_str.lower())
@@ -26,7 +30,7 @@ def parse_pins(pin_str):
     return 0
 
 def get_pinterest_data(keywords):
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(service=service, options=options)
     total_pins_list = []
     keyword_list = []
     n_board_list = []
