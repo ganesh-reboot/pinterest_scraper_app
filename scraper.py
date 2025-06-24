@@ -14,6 +14,9 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.os_manager import ChromeType
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 options = Options()
 options.add_argument("--headless")
 options.add_argument("--no-sandbox")
@@ -91,6 +94,11 @@ def get_pinterest_data(keywords):
                         board_data.add(board_tuple)
 
                 current_board_count = len(board_data)
+
+                if current_board_count % 100 == 0:
+                    logging.debug("This is a debug log")
+                    logging.info("Scraping started for keyword: %s", keyword)
+                    logging.info(f"Current scraped board count:", current_board_count)
 
                 if current_board_count == previous_board_count:
                     stagnant_scrolls += 1
