@@ -71,7 +71,7 @@ if st.session_state.scraping and terms_input.strip():
     st.dataframe(df_results)
 
     st.session_state.scraping = False
-    time.sleep(0.5)
+    st.rerun()
 
     # Download button
     excel_data = to_excel(df_results)
