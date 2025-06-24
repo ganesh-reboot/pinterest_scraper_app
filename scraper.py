@@ -47,80 +47,89 @@ def get_pinterest_data(keywords):
     total_pins_list = []
     keyword_list = []
     n_board_list = []
+    errors = []
 
 
     for keyword in keywords:
-        search_url = f'https://www.pinterest.com/search/boards/?q={keyword}'
-        driver.get(search_url)
+        try:
+            search_url = f'https://www.pinterest.com/search/boards/?q={keyword}'
+            driver.get(search_url)
 
-        wait = WebDriverWait(driver, 20)
-        board_data = set()
-        previous_board_count = len(board_data)
-        stagnant_scrolls = 0
+            wait = WebDriverWait(driver, 20)
+            board_data = set()
+            previous_board_count = len(board_data)
+            stagnant_scrolls = 0
 
-        while True:
+            while True:
 
-            wait.until(EC.presence_of_element_located((By.TAG_NAME, "h2")))
+                wait.until(EC.presence_of_element_located((By.TAG_NAME, "h2")))
 
-            soup = BeautifulSoup(driver.page_source, "html.parser")
+                soup = BeautifulSoup(driver.page_source, "html.parser")
 
-            board_titles = [h2.text.strip() for h2 in soup.find_all("h2") if h2.text.strip()]
+                board_titles = [h2.text.strip() for h2 in soup.find_all("h2") if h2.text.strip()]
 
-            if board_titles[-1] == 'You are signed out':
-                board_titles = board_titles[:-1]
+                if board_titles[-1] == 'You are signed out':
+                    board_titles = board_titles[:-1]
 
-            pin_counts = [
-                    pin.text.strip()
-                    for pin in soup.find_all(attrs={"data-test-id": "pinAndSectionCount-pin-count"})
-                    if pin.text.strip()
-                ]
-            
-            user_names = [
-                    user.text.strip()
-                    for user in soup.find_all(attrs={"data-test-id": "line-clamp-wrapper"})
-                    if user.text.strip()
-                ]
-            
-            for i in range(len(board_titles)):
-                board_tuple = (board_titles[i], pin_counts[i], user_names[i])
-                if board_tuple not in board_data:
-                    board_data.add(board_tuple)
+                pin_counts = [
+                        pin.text.strip()
+                        for pin in soup.find_all(attrs={"data-test-id": "pinAndSectionCount-pin-count"})
+                        if pin.text.strip()
+                    ]
+                
+                user_names = [
+                        user.text.strip()
+                        for user in soup.find_all(attrs={"data-test-id": "line-clamp-wrapper"})
+                        if user.text.strip()
+                    ]
+                
+                for i in range(len(board_titles)):
+                    board_tuple = (board_titles[i], pin_counts[i], user_names[i])
+                    if board_tuple not in board_data:
+                        board_data.add(board_tuple)
 
-            current_board_count = len(board_data)
+                current_board_count = len(board_data)
 
-            if current_board_count == previous_board_count:
-                stagnant_scrolls += 1
-            else:
-                stagnant_scrolls = 0
+                if current_board_count == previous_board_count:
+                    stagnant_scrolls += 1
+                else:
+                    stagnant_scrolls = 0
 
-            if stagnant_scrolls >= 5:
-                # print("Stopping due to no new content after multiple attempts.")
-                break
+                if stagnant_scrolls >= 5:
+                    # print("Stopping due to no new content after multiple attempts.")
+                    break
 
-            # driver.execute_script("window.scrollBy(0, document.body.scrollHeight / 15);")
-            driver.execute_script("window.scrollBy(0, 300);")
-            time.sleep(3)
+                # driver.execute_script("window.scrollBy(0, document.body.scrollHeight / 15);")
+                driver.execute_script("window.scrollBy(0, 300);")
+                time.sleep(3)
 
-            previous_board_count = current_board_count
+                previous_board_count = current_board_count
 
-        total_pins = sum(parse_pins(pin_count) for _, pin_count, _ in board_data)
-        total_boards = len(board_data)
+            total_pins = sum(parse_pins(pin_count) for _, pin_count, _ in board_data)
+            total_boards = len(board_data)
 
-        # Total pin sum
-        total_pins = sum(parse_pins(pin_str) for _, pin_str, _ in board_data)
+            # Total pin sum
+            total_pins = sum(parse_pins(pin_str) for _, pin_str, _ in board_data)
 
-        print(keyword)
-        print(f"Total pins: {total_pins} from {len(board_data)} boards")
-        print('-'*15)
-        print()
+            print(keyword)
+            print(f"Total pins: {total_pins} from {len(board_data)} boards")
+            print('-'*15)
+            print()
 
-        total_pins_list.append(total_pins)
-        keyword_list.append(keyword)
-        n_board_list.append(len(board_data))
+            total_pins_list.append(total_pins)
+            keyword_list.append(keyword)
+            n_board_list.append(len(board_data))
+            errors.append(None)
+        except Exception as e:
+            total_pins_list.append(0)
+            keyword_list.append(keyword)
+            n_board_list.append(0)
+            errors.append(str(e))
 
     df_output = pd.DataFrame({
         'keyword': keyword_list,
         'total_pins': total_pins_list,
         'n_boards': n_board_list
+        'errors': errors
     })
     return df_output

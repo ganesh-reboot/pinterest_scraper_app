@@ -7,8 +7,6 @@ import time
 if "scraping" not in st.session_state:
     st.session_state.scraping = False
 
-if "results_df" not in st.session_state:
-    st.session_state.results_df = None
 
 
 st.set_page_config(page_title="Pinterest Scraper", layout="centered")
@@ -55,28 +53,26 @@ def to_excel(df):
 if st.session_state.scraping and terms_input.strip():
     strip_split_terms = terms_input.strip().split('\n')
     terms = [term.strip() for term in strip_split_terms]
-    file_name = "pinterest_data_" + "_".join(strip_split_terms) + '.xlsx'
-    
-    progress_bar = st.progress(0, text="Scraping in progress. Please wait.")
+    if terms:
+        file_name = "pinterest_data_" + "_".join(strip_split_terms) + '.xlsx'
+        
+        progress_bar = st.progress(0, text="Scraping in progress. Please wait.")
 
-    df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards"])
-    with st.spinner("Scraping data from Pinterest..."):
-        for i, term in enumerate(terms):
-            df_term = get_pinterest_data([term])
-            df_results = pd.concat([df_results, df_term], ignore_index=True)
-            progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
-            time.sleep(0.5)
-    
-    st.session_state.results_df = df_results
-    st.session_state.scraping = False
-
-    if st.session_state.results_df is not None:
+        df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards"])
+        with st.spinner("Scraping data from Pinterest..."):
+            for i, term in enumerate(terms):
+                df_term = get_pinterest_data([term])
+                df_results = pd.concat([df_results, df_term], ignore_index=True)
+                progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
+                time.sleep(0.5)
 
         st.success("✅ Scraping complete!")
-        st.dataframe(st.session_state.results_df)
+        st.dataframe(df_results)
 
-    # Download button
-        excel_data = to_excel(st.session_state.results_df)
+        st.session_state.scraping = False
+        st.rerun()
+
+        excel_data = to_excel(df_results)
         st.download_button(
             label="📥 Download as Excel",
             data=excel_data,
