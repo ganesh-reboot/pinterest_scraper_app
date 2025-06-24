@@ -69,7 +69,6 @@ if st.session_state.scraping and terms_input.strip():
     st.dataframe(df_results)
 
     st.session_state.scraping = False
-    st.rerun()
 
     excel_data = to_excel(df_results)
     st.download_button(
