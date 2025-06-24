@@ -3,11 +3,6 @@ from scraper import get_pinterest_data
 import pandas as pd
 from io import BytesIO
 import time
-import logging
-logger = logging.getLogger("myapp")
-logger.setLevel(logging.DEBUG)
-if "scraping" not in st.session_state:
-    st.session_state.scraping = False
 
 
 

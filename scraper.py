@@ -15,9 +15,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.os_manager import ChromeType
 
 import logging
-logger = logging.getLogger("myapp")
-logger.setLevel(logging.DEBUG)
-logger.debug("THIS IS A TEST LOGGING STATEMENT 4654671532486192374928374987239")
+logging.basicConfig(level=logging.warn)
 
 options = Options()
 options.add_argument("--headless")
@@ -98,9 +96,9 @@ def get_pinterest_data(keywords):
                 current_board_count = len(board_data)
 
                 if current_board_count % 10 == 0:
-                    logger.debug("This is my debug message")
-                    logging.debug("Scraping started for keyword: %s", keyword)
-                    logging.debug("Current scraped board count:", current_board_count)
+                    logging.warn("This is my debug message")
+                    logging.warn("Scraping started for keyword: %s", keyword)
+                    logging.warn("Current scraped board count:", current_board_count)
 
                 if current_board_count == previous_board_count:
                     stagnant_scrolls += 1
