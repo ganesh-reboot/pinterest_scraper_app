@@ -7,6 +7,8 @@ import time
 if "scraping" not in st.session_state:
     st.session_state.scraping = False
 
+if "results_df" not in st.session_state:
+    st.session_state.results_df = None
 
 
 st.set_page_config(page_title="Pinterest Scraper", layout="centered")
@@ -55,9 +57,7 @@ if st.session_state.scraping and terms_input.strip():
     terms = [term.strip() for term in strip_split_terms]
     file_name = "pinterest_data_" + "_".join(strip_split_terms) + '.xlsx'
     
-    # Progress bar
-    progress_text = "Scraping in progress. Please wait."
-    progress_bar = st.progress(0, text=progress_text)
+    progress_bar = st.progress(0, text="Scraping in progress. Please wait.")
 
     df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards"])
     with st.spinner("Scraping data from Pinterest..."):
@@ -66,19 +66,21 @@ if st.session_state.scraping and terms_input.strip():
             df_results = pd.concat([df_results, df_term], ignore_index=True)
             progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
             time.sleep(0.5)
-
-    st.success("✅ Scraping complete!")
-    st.dataframe(df_results)
-
+    
+    st.session_state.results_df = df_results
     st.session_state.scraping = False
-    st.rerun()
+
+    if st.session_state.results_df is not None:
+
+        st.success("✅ Scraping complete!")
+        st.dataframe(st.session_state.results_df)
 
     # Download button
-    excel_data = to_excel(df_results)
-    st.download_button(
-        label="📥 Download as Excel",
-        data=excel_data,
-        file_name=file_name,
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+        excel_data = to_excel(st.session_state.results_df)
+        st.download_button(
+            label="📥 Download as Excel",
+            data=excel_data,
+            file_name=file_name,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
