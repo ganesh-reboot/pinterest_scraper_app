@@ -15,6 +15,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.os_manager import ChromeType
 
 import logging
+from logging import getLogger
 app_logger = getLogger()
 app_logger.addHandler(logging.StreamHandler())
 app_logger.setLevel(logging.INFO)
