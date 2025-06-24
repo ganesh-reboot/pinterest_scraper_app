@@ -129,7 +129,7 @@ def get_pinterest_data(keywords):
     df_output = pd.DataFrame({
         'keyword': keyword_list,
         'total_pins': total_pins_list,
-        'n_boards': n_board_list
+        'n_boards': n_board_list,
         'errors': errors
     })
     return df_output
