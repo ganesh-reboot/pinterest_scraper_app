@@ -1,6 +1,6 @@
 streamlit
 pandas
-selenium
+seleniumbase
 beautifulsoup4
 requests
 xlsxwriter

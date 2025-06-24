@@ -2,14 +2,17 @@
 import time
 import re
 import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
+import streamlit as st
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.os_manager import ChromeType
 
 options = Options()
 options.add_argument("--headless")
@@ -19,6 +22,15 @@ options.binary_location = "/usr/bin/chromium"
 
 # Define the ChromeDriver service
 service = Service(ChromeDriverManager().install())
+
+@st.cache_resource
+def get_driver():
+    return webdriver.Chrome(
+        service=Service(
+            ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
+        ),
+        options=options,
+    )
 
 def parse_pins(pin_str):
     match = re.match(r'([\d\.]+)(k?)', pin_str.lower())
@@ -31,7 +43,7 @@ def parse_pins(pin_str):
     return 0
 
 def get_pinterest_data(keywords):
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = get_driver()
     total_pins_list = []
     keyword_list = []
     n_board_list = []
