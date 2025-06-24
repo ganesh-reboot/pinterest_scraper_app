@@ -51,6 +51,8 @@ def get_pinterest_data(keywords):
 
 
     for keyword in keywords:
+        if keyword == '':
+            raise ValueError("Empty string exception")
         try:
             search_url = f'https://www.pinterest.com/search/boards/?q={keyword}'
             driver.get(search_url)

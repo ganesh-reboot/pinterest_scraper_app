@@ -53,30 +53,29 @@ def to_excel(df):
 if st.session_state.scraping and terms_input.strip():
     strip_split_terms = terms_input.strip().split('\n')
     terms = [term.strip() for term in strip_split_terms]
-    if terms:
-        file_name = "pinterest_data_" + "_".join(strip_split_terms) + '.xlsx'
-        
-        progress_bar = st.progress(0, text="Scraping in progress. Please wait.")
+    file_name = "pinterest_data_" + "_".join(strip_split_terms) + '.xlsx'
+    
+    progress_bar = st.progress(0, text="Scraping in progress. Please wait.")
 
-        df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards"])
-        with st.spinner("Scraping data from Pinterest..."):
-            for i, term in enumerate(terms):
-                df_term = get_pinterest_data([term])
-                df_results = pd.concat([df_results, df_term], ignore_index=True)
-                progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
-                time.sleep(0.5)
+    df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards"])
+    with st.spinner("Scraping data from Pinterest..."):
+        for i, term in enumerate(terms):
+            df_term = get_pinterest_data([term])
+            df_results = pd.concat([df_results, df_term], ignore_index=True)
+            progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
+            time.sleep(0.5)
 
-        st.success("✅ Scraping complete!")
-        st.dataframe(df_results)
+    st.success("✅ Scraping complete!")
+    st.dataframe(df_results)
 
-        st.session_state.scraping = False
-        st.rerun()
+    st.session_state.scraping = False
+    st.rerun()
 
-        excel_data = to_excel(df_results)
-        st.download_button(
-            label="📥 Download as Excel",
-            data=excel_data,
-            file_name=file_name,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+    excel_data = to_excel(df_results)
+    st.download_button(
+        label="📥 Download as Excel",
+        data=excel_data,
+        file_name=file_name,
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
