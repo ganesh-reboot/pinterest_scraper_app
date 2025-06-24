@@ -2,6 +2,7 @@ import streamlit as st
 from scraper import get_pinterest_data
 import pandas as pd
 from io import BytesIO
+import time
 
 if "scraping" not in st.session_state:
     st.session_state.scraping = False
@@ -17,7 +18,13 @@ terms_input = st.text_area("Enter terms (one per line):", height=200)
 def start_scraping():
     st.session_state.scraping = True
 
-st.button("Begin Scrape", on_click=start_scraping, disabled=st.session_state.scraping)
+st.button(
+    "Begin Scrape",
+    on_click=start_scraping,
+    disabled=st.session_state.scraping,
+    help="Scraping already in progress." if st.session_state.scraping else None
+)
+
 
 with st.expander("❓ Help / Debug Instructions"):
     st.markdown("""
@@ -53,11 +60,12 @@ if st.session_state.scraping and terms_input.strip():
     progress_bar = st.progress(0, text=progress_text)
 
     df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards"])
-    
-    for i, term in enumerate(terms):
-        df_term = get_pinterest_data([term])
-        df_results = pd.concat([df_results, df_term], ignore_index=True)
-        progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
+    with st.spinner("Scraping data from Pinterest..."):
+        for i, term in enumerate(terms):
+            df_term = get_pinterest_data([term])
+            df_results = pd.concat([df_results, df_term], ignore_index=True)
+            progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
+            time.sleep(0.5)
 
     st.success("✅ Scraping complete!")
     st.dataframe(df_results)
