@@ -1,9 +1,28 @@
 import streamlit as st
+import scraper
 from scraper import get_pinterest_data
 import pandas as pd
 from io import BytesIO
 import time
+import logging
+from streamlit.logger import get_logger
 
+if "scraping" not in st.session_state:
+    st.session_state.scraping = False
+
+
+class StreamlitLogHandler(logging.Handler):
+    def __init__(self, widget_update_func):
+        super().__init__()
+        self.widget_update_func = widget_update_func
+
+    def emit(self, record):
+        msg = self.format(record)
+        self.widget_update_func(msg)
+
+logger = get_logger(scraper.__name__)
+handler = StreamlitLogHandler(st.empty().code)
+logger.addHandler(handler)
 
 
 st.set_page_config(page_title="Pinterest Scraper", layout="centered")
