@@ -44,8 +44,8 @@ def to_excel(df):
     return output.getvalue()
 
 if st.session_state.scraping and terms_input.strip():
-    strip_split_terms = terms_input.split('/n')
-    st.echo(strip_split_terms.split('/n'))
+    strip_split_terms = terms_input.strip().split('/n')
+    st.echo(terms_input)
     terms = [term.strip() for term in strip_split_terms]
     file_name = "pinterest_data_" + "_".join(strip_split_terms) + '.xlsx'
     
