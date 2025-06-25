@@ -14,9 +14,6 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.os_manager import ChromeType
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 options = Options()
 options.add_argument("--headless")
@@ -37,13 +34,17 @@ def get_driver():
     )
 
 def parse_pins(pin_str):
-    match = re.match(r'([\d\.]+)(k?)', pin_str.lower())
-    if match:
-        num, k = match.groups()
-        num = float(num)
-        if k == 'k':
-            num *= 1000
-        return int(num)
+    try:
+        pin_str = str(pin_str).lower()
+        match = re.match(r'([\d\.]+)(k?)', pin_str)
+        if match:
+            num, k = match.groups()
+            num = float(num)
+            if k == 'k':
+                num *= 1000
+            return int(num)
+    except:
+        pass
     return 0
 
 def get_pinterest_data(keywords):
@@ -95,14 +96,6 @@ def get_pinterest_data(keywords):
                         board_data.add(board_tuple)
 
                 current_board_count = len(board_data)
-
-                if current_board_count % 10 == 0:
-                    logger.info("This is my debug message")
-                    time.sleep(0.1)
-                    logger.info("Scraping started for keyword: %s", keyword)
-                    time.sleep(0.1)
-                    logger.info("Current scraped board count:", current_board_count)
-                    time.sleep(0.1)
 
                 if current_board_count == previous_board_count:
                     stagnant_scrolls += 1
