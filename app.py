@@ -4,43 +4,34 @@ from scraper import get_pinterest_data
 import pandas as pd
 from io import BytesIO
 import time
-import logging
-from streamlit.logger import get_logger
+
+def start_scraping():
+    st.session_state.scraping = True
+
+def to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="Pinterest Data")
+    return output.getvalue()
+
+def update_scrape_status(term, n_boards, scroll_count):
+    status_box.info(f"Scraping '{term}'. Boards found: {n_boards}")
 
 if "scraping" not in st.session_state:
     st.session_state.scraping = False
-
-
-class StreamlitLogHandler(logging.Handler):
-    def __init__(self, widget_update_func):
-        super().__init__()
-        self.widget_update_func = widget_update_func
-
-    def emit(self, record):
-        msg = self.format(record)
-        self.widget_update_func(msg)
-
-logger = get_logger(scraper.__name__)
-handler = StreamlitLogHandler(st.empty().code)
-logger.addHandler(handler)
 
 
 st.set_page_config(page_title="Pinterest Scraper", layout="centered")
 
 st.title("Pinterest Scraper")
 st.markdown("Enter pinterest board search terms ")
-
 terms_input = st.text_area("Enter terms (one per line):", height=200)
-def start_scraping():
-    st.session_state.scraping = True
-
 st.button(
     "Begin Scrape",
     on_click=start_scraping,
     disabled=st.session_state.scraping,
     help="Scraping already in progress." if st.session_state.scraping else None
 )
-
 
 with st.expander("❓ Help / Debug Instructions"):
     st.markdown("""
@@ -57,33 +48,28 @@ If you're seeing an error message (usually shown in red with a traceback), pleas
 - Share it with the team so we can replicate and fix it.
     """)
 
-
-
-
-def to_excel(df):
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False, sheet_name="Pinterest Data")
-    return output.getvalue()
-
 if st.session_state.scraping and terms_input.strip():
     strip_split_terms = terms_input.strip().split('\n')
     terms = [term.strip() for term in strip_split_terms]
     file_name = "pinterest_data_" + "_".join(strip_split_terms) + '.xlsx'
-    
-    progress_bar = st.progress(0, text="Scraping in progress. Please wait.")
 
-    df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards"])
+    status_box = st.empty()
+    progress_bar = st.progress(0, text="Scraping in progress. Please wait.")
+    df_results = pd.DataFrame(columns=["keyword", "total_pins", "n_boards", "errors"])
+    live_table = st.empty()
+
     with st.spinner("Scraping data from Pinterest..."):
         for i, term in enumerate(terms):
-            df_term = get_pinterest_data([term])
-            df_results = pd.concat([df_results, df_term], ignore_index=True)
-            progress_bar.progress((i + 1) / len(terms), text=f"Processing: {term} ({i+1}/{len(terms)})")
+            progress_bar.progress((i) / len(terms), text=f"Processing: ({i+1}/{len(terms)})")
             time.sleep(0.5)
 
-    st.success("✅ Scraping complete!")
-    st.dataframe(df_results)
+            df_term = get_pinterest_data(term, update_callback=update_scrape_status)
+            df_results = pd.concat([df_results, df_term], ignore_index=True)
+            live_table.dataframe(df_results)
 
+    progress_bar.empty()
+    st.success("✅ Scraping complete!")
+    status_box.empty()
     st.session_state.scraping = False
 
     excel_data = to_excel(df_results)
@@ -93,4 +79,3 @@ if st.session_state.scraping and terms_input.strip():
         file_name=file_name,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
