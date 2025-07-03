@@ -113,7 +113,7 @@ def get_pinterest_data(keyword, update_callback = None):
                 break
 
             # driver.execute_script("window.scrollBy(0, document.body.scrollHeight / 15);")
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            driver.execute_script("window.scrollBy(0, 800);")
             time.sleep(3)
 
             previous_board_count = current_board_count
