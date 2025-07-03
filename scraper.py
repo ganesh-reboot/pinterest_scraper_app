@@ -57,8 +57,8 @@ def parse_pins(pin_str):
         pass
     return 0
 
-def get_pinterest_data(keyword, update_callback = None):
-    driver = get_driver()
+def get_pinterest_data(keyword, driver, update_callback = None):
+    # driver = get_driver()
     total_pins_list = []
     keyword_list = []
     n_board_list = []
