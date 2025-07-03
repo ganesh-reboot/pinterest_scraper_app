@@ -18,23 +18,30 @@ options.add_argument("--headless")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
-# Always needs to be True before deployment. Change while debuggin in local machine
-PROD = True
+# # Always needs to be True before deployment. Change while debuggin in local machine
+# PROD = True
 
-if PROD:
-    options.binary_location = "/usr/bin/chromium"
-    service = Service(ChromeDriverManager().install())
+# if PROD:
+#     options.binary_location = "/usr/bin/chromium"
+#     service = Service(ChromeDriverManager().install())
 
+# @st.cache_resource
+# def get_driver():
+#     if PROD:
+        # return webdriver.Chrome(
+        #     service=Service(
+        #         ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
+        #     ),
+        #     options=options,
+        # )
+#     return webdriver.Chrome(options=options)
 @st.cache_resource
 def get_driver():
-    if PROD:
-        return webdriver.Chrome(
-            service=Service(
-                ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()
-            ),
-            options=options,
-        )
-    return webdriver.Chrome(options=options)
+    driver = webdriver.Remote(
+        command_executor="http://selenium:4444/wd/hub",
+        options=options
+    )
+    return driver
 
 def parse_pins(pin_str):
     try:

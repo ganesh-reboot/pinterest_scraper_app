@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  streamlit:
+    build: .
+    ports:
+      - "8501:8501"
+    depends_on:
+      - selenium
+    platform: linux/amd64
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  selenium:
+    image: selenium/standalone-chrome
+    platform: linux/amd64
+    ports:
+      - "4444:4444"
+    shm_size: "2gb"
