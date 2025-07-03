@@ -60,13 +60,13 @@ if st.session_state.scraping and terms_input.strip():
     live_table = st.empty()
 
     with st.spinner("Scraping data from Pinterest..."):
-        for i, term in enumerate(terms):
-            progress_bar.progress((i) / len(terms), text=f"Processing: ({i+1}/{len(terms)})")
-            time.sleep(0.5)
-            with get_driver() as driver:
-                df_term = get_pinterest_data(term, driver=driver, update_callback=update_scrape_status)
-            df_results = pd.concat([df_results, df_term], ignore_index=True)
-            live_table.dataframe(df_results)
+        with get_driver() as driver:
+            for i, term in enumerate(terms):
+                progress_bar.progress((i) / len(terms), text=f"Processing: ({i+1}/{len(terms)})")
+                time.sleep(0.5)
+                    df_term = get_pinterest_data(term, driver=driver, update_callback=update_scrape_status)
+                df_results = pd.concat([df_results, df_term], ignore_index=True)
+                live_table.dataframe(df_results)
 
     progress_bar.empty()
     st.success("✅ Scraping complete!")

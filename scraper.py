@@ -3,6 +3,7 @@ import re
 import pandas as pd
 from bs4 import BeautifulSoup
 import streamlit as st
+from contextlib import contextmanager
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -12,11 +13,6 @@ from webdriver_manager.core.os_manager import ChromeType
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-
-options = Options()
-options.add_argument("--headless")
-options.add_argument("--no-sandbox")
-options.add_argument("--disable-dev-shm-usage")
 
 # # Always needs to be True before deployment. Change while debuggin in local machine
 # PROD = True
@@ -35,13 +31,20 @@ options.add_argument("--disable-dev-shm-usage")
         #     options=options,
         # )
 #     return webdriver.Chrome(options=options)
-@st.cache_resource
+@contextmanager
 def get_driver():
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Remote(
         command_executor="http://selenium:4444/wd/hub",
         options=options
     )
-    return driver
+    try:
+        yield driver
+    finally:
+        driver.quit()
 
 def parse_pins(pin_str):
     try:
