@@ -56,6 +56,7 @@ def get_pinterest_data(keyword, update_callback = None):
     keyword_list = []
     n_board_list = []
     errors = []
+    start_time = time.time()
 
     try:
         if keyword == '':
@@ -111,6 +112,11 @@ def get_pinterest_data(keyword, update_callback = None):
             if stagnant_scrolls >= 5:
                 # print("Stopping due to no new content after multiple attempts.")
                 break
+            
+            elapsed_time = time.time() - start_time
+            if elapsed_time > 14 * 60:
+                print("Exiting as time > 14 mins")
+                break
 
             # driver.execute_script("window.scrollBy(0, document.body.scrollHeight / 15);")
             driver.execute_script("window.scrollBy(0, 800);")
@@ -138,6 +144,7 @@ def get_pinterest_data(keyword, update_callback = None):
         keyword_list.append(keyword)
         n_board_list.append(0)
         errors.append(str(e))
+        driver.quit()
 
     df_output = pd.DataFrame({
         'keyword': keyword_list,
@@ -145,4 +152,5 @@ def get_pinterest_data(keyword, update_callback = None):
         'n_boards': n_board_list,
         'errors': errors
     })
+    driver.quit()
     return df_output
