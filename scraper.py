@@ -19,13 +19,13 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
 # Always needs to be True before deployment. Change while debuggin in local machine
-PROD = True
+PROD = False
 
 if PROD:
     options.binary_location = "/usr/bin/chromium"
     service = Service(ChromeDriverManager().install())
 
-@st.cache_resource
+# @st.cache_resource
 def get_driver():
     if PROD:
         return webdriver.Chrome(
