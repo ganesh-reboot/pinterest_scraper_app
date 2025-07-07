@@ -114,7 +114,7 @@ def get_pinterest_data(keyword, update_callback = None):
                 break
             
             elapsed_time = time.time() - start_time
-            if elapsed_time > 10 * 60:
+            if elapsed_time > 13 * 60:
                 print("Exiting as time > 10 mins")
                 break
 
