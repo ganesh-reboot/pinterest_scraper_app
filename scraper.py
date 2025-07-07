@@ -19,7 +19,7 @@ options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 
 # Always needs to be True before deployment. Change while debuggin in local machine
-PROD = False
+PROD = True
 
 if PROD:
     options.binary_location = "/usr/bin/chromium"
@@ -114,8 +114,8 @@ def get_pinterest_data(keyword, update_callback = None):
                 break
             
             elapsed_time = time.time() - start_time
-            if elapsed_time > 14 * 60:
-                print("Exiting as time > 14 mins")
+            if elapsed_time > 10 * 60:
+                print("Exiting as time > 10 mins")
                 break
 
             # driver.execute_script("window.scrollBy(0, document.body.scrollHeight / 15);")
