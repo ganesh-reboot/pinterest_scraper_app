@@ -1,8 +1,7 @@
 streamlit
 pandas
-seleniumbase
+selenium>=4.6.0
 beautifulsoup4
 requests
 xlsxwriter
 openpyxl
-webdriver-manager

@@ -8,8 +8,6 @@ from contextlib import contextmanager
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.os_manager import ChromeType
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -33,14 +31,11 @@ from selenium.webdriver.common.by import By
 #     return webdriver.Chrome(options=options)
 @contextmanager
 def get_driver():
-    options = webdriver.ChromeOptions()
+    options = Options()
     options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Remote(
-        command_executor="http://selenium:4444/wd/hub",
-        options=options
-    )
+    driver = webdriver.Chrome(options=options)
     try:
         yield driver
     finally:
